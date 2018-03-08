@@ -29,19 +29,20 @@ while (True):
     key = waitKey(1) & 0xFF
     if(key == ord('S')): #Press S to switch the feed
         index = 1 - index
-    if(index == 0): #Switch the set
-        cam1.set(CAP_PROP_FRAME_WIDTH, width)
-        cam1.set(CAP_PROP_FRAME_HEIGHT, height)
 
-        cam2.set(CAP_PROP_FRAME_WIDTH, 460)
-        cam2.set(CAP_PROP_FRAME_HEIGHT, 180)
+        if(index == 0): #Switch the set
+            cam1.set(CAP_PROP_FRAME_WIDTH, width)
+            cam1.set(CAP_PROP_FRAME_HEIGHT, height)
 
-    else:
-        cam1.set(CAP_PROP_FRAME_WIDTH, 460)
-        cam1.set(CAP_PROP_FRAME_HEIGHT, 180)
+            cam2.set(CAP_PROP_FRAME_WIDTH, 460)
+            cam2.set(CAP_PROP_FRAME_HEIGHT, 180)
 
-        cam2.set(CAP_PROP_FRAME_WIDTH, width)
-        cam2.set(CAP_PROP_FRAME_HEIGHT, height)
+        else:
+            cam1.set(CAP_PROP_FRAME_WIDTH, 460)
+            cam1.set(CAP_PROP_FRAME_HEIGHT, 180)
+
+            cam2.set(CAP_PROP_FRAME_WIDTH, width)
+            cam2.set(CAP_PROP_FRAME_HEIGHT, height)
     if (key == 27 or key == ord('Q')): #Press ESC or Q to quit
         break
         

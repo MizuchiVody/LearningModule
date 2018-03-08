@@ -18,7 +18,7 @@ This file is created by Mohammed Aghzal. It does the following:
 * Displays multiple feeds
 * We can switch between the two feeds 
 ![Alt text]
-##Screenshot
+## Screenshot
   ![Alt text](https://imgur.com/a/jRgES"Screenshot")
 
 Things To do:

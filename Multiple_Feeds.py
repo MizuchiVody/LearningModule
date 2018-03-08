@@ -2,12 +2,14 @@ from tkinter import *
 from cv2 import *
 from sys import *
 
+# Initialize cameras to corresponding ports
 cam1 = VideoCapture(0)
 cam2 = VideoCapture(1)
 
 width = maxsize
 height = maxsize
 
+# Set Camera Dimensions
 cam1.set(CAP_PROP_FRAME_WIDTH, width)
 cam1.set(CAP_PROP_FRAME_HEIGHT, height)
 

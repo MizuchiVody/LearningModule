@@ -2,29 +2,20 @@
 Let's create a working collaborative code in here to practice git. 
 
 ## Who is working on What?
-Mohammed Aghzal is working on the following:
-* Chi 7aja
-*
-
+Mohamed Aghzal is working on the following:
+  * The camera feedback
 Farouk is working on:
-*
-*
-*
+  * The panels
 
 Salma is working on:
-*
-*
-*
+  *
 
 ## MultipleFeeds
 This file is created by Mohammed Aghzal. It does the following:
-* A good thing
-* Another good thing
-* Bla bla
+* Displays multiple feeds
+* We can switch between the two feeds 
 
 Things To do:
-* lkfjlkj
-* lkfjdslkjfl
-* dfkjdfkjds
+* Add panels
 
 ## Main Panel

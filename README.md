@@ -14,12 +14,12 @@ Salma is working on:
   * Reguraly updated value window
 
 ## MultipleFeeds
-This file is created by Mohammed Aghzal. It does the following:
+This file is created by Mohamed Aghzal. It does the following:
 * Displays multiple feeds
 * We can switch between the two feeds 
 ![Alt text]
 ## Screenshot
-  ![Alt text](https://imgur.com/gallery/jRgES "Screenshot")
+  ![Alt text](https://imgur.com/gallery/jRgES.jpg)
 
 Things To do:
 * Add panels

@@ -29,8 +29,10 @@ while (True):
     key = waitKey(1) & 0xFF
     if(key == ord('S')): #Press S to switch the feed
         index = 1 - index
-
-        if(index == 0): #Switch the set
+        
+        #Switch the set
+        
+        if(index == 0):
             cam1.set(CAP_PROP_FRAME_WIDTH, width)
             cam1.set(CAP_PROP_FRAME_HEIGHT, height)
 

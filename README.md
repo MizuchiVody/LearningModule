@@ -17,7 +17,9 @@ Salma is working on:
 This file is created by Mohammed Aghzal. It does the following:
 * Displays multiple feeds
 * We can switch between the two feeds 
-![Alt text](https://imgur.com/a/jRgES"Screenshot")
+![Alt text]
+##Screenshot
+  ![Alt text](https://imgur.com/a/jRgES"Screenshot")
 
 Things To do:
 * Add panels

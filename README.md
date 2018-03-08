@@ -18,6 +18,6 @@ This file is created by Mohammed Aghzal. It does the following:
 
 Things To do:
 * Add panels
-* Window with tkinter 
+* Change windows' code using tkinter 
 
 ## Main Panel

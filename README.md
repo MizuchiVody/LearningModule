@@ -19,7 +19,7 @@ This file is created by Mohammed Aghzal. It does the following:
 * We can switch between the two feeds 
 ![Alt text]
 ## Screenshot
-  ![Alt text](https://imgur.com/gallery/jRgES/"Screenshot")
+  ![Alt text](https://imgur.com/gallery/jRgES/ "Screenshot")
 
 Things To do:
 * Add panels

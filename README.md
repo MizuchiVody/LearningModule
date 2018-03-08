@@ -8,7 +8,8 @@ Farouk is working on:
   * The panels
 
 Salma is working on:
-  *
+  * Command window 
+  * Reguraly updated value window
 
 ## MultipleFeeds
 This file is created by Mohammed Aghzal. It does the following:
@@ -17,5 +18,6 @@ This file is created by Mohammed Aghzal. It does the following:
 
 Things To do:
 * Add panels
+* Window with tkinter 
 
 ## Main Panel

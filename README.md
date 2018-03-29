@@ -18,6 +18,7 @@ Salma is working on:
 This file is created by Mohamed Aghzal. It does the following:
 * Displays multiple feeds
 * We can switch between the two feeds 
+* Display timer
 ![Alt text]
 ## MultipleFeeds 2.0 intial simple code
 By Farouk:

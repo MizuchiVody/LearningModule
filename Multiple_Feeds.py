@@ -4,21 +4,21 @@ import datetime
 from cv2 import *
 from sys import *
 from time import *
-from goprocam import *
 from numpy import *
 import daytime
 
 root = Tk()
 label = Label(root)
 states = []
+checklist = ['Prepower', 'Power Up', 'Failed Bubble Check', 'Lunch', 'Lost Communication', 'ROV retrieval', 'Demobilization']
 
-for i in range(10):
+for i in range(0, 6):
         var = IntVar()
-        chk = Checkbutton(root, text="Mission" + ' ' + str(i + 1), variable=var)
+        chk = Checkbutton(root, text= checklist[i], variable=var)
         chk.pack(side=TOP)
         states.append(var.get())
 
-b = Button(root, text = "OK", command = root.quit).pack() #Press OK once all missions are completed.
+b = Button(root, text = "OK", command = root.quit).pack()
 root.mainloop()
 
 cam1 = VideoCapture(0)  # Capture the video from camera on port 0

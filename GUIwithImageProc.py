@@ -34,8 +34,8 @@ def DetectColor(Img, Contour):
 
     for (i, (name, HSV)) in enumerate(colors.items()):
             # Updating the lab array and the color name list
-            self.HSV[i] = HSV
-            self.colorNames.append(name)
+            HSV[i] = HSV
+            colorNames.append(name)
         # Converting the lab array from RGB color space to lab
     self.HSV = cvtColor(self.HSV, cv2.COLOR_RGB2HSV)
     mask = zeros(image.shape[:2], dtype="uint8")

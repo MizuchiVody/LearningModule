@@ -1,0 +1,243 @@
+# Import the necessary packages
+from tkinter import *  # Make sure you're using Python 3!!!
+# import serial.tools.list_ports
+import datetime
+from cv2 import *
+from sys import *
+from time import *
+# from serial import *
+from numpy import *
+import numpy as np
+import imutils
+import daytime
+from scipy.spatial import distance as dist
+from collections import OrderedDict
+
+root = Tk()
+label = Label(root)
+states = []
+checklist = ['Prepower', 'Power Up', 'Failed Bubble Check', 'Lunch', 'Lost Communication', 'ROV retrieval',
+             'Demobilization']
+
+for i in range(0, 6):
+    var = IntVar()
+    chk = Checkbutton(root, text=checklist[i], variable=var)
+    chk.pack(side=TOP)
+    states.append(var.get())
+
+b = Button(root, text="OK", command=root.quit).pack()
+root.mainloop()
+
+'''def DetectColor(Img, Contour):
+    colors = OrderedDict({"Red": (255, 0, 0), "Yellow": (0, 255, 0), "Blue": (0, 0, 255)})
+    hsv = zeros((len(colors), 1, 3), dtype="uint8")
+    colorNames = []
+    for (i, (name, HSV)) in enumerate(colors.items()):
+        # Updating the lab array and the color name list
+        hsv[i] = HSV
+        colorNames.append(name)
+        # Converting the lab array from RGB color space to lab
+    hsv = cvtColor(Img, cv2.COLOR_RGB2HSV)
+    mask = zeros(Img.shape[:2], dtype="uint8")
+    drawContours(mask, [Contour], -1, 255, -1)
+    mask = erode(mask, None, iterations=2)
+    mean = cv2.mean(Img, mask=mask)[:3]
+    minDist = (np.inf, None)
+    for (i, row) in enumerate(hsv):
+        # computing the distance between the current lab color value and the mean og the image
+        d = dist.euclidean(row[0], mean)
+        # if the distance is smaller than the current distance, update the bookkeeping variable
+        if d < minDist[0]:
+             minDist = (d, i)
+    return colorNames[minDist[1]]'''
+
+
+# def DetectColor (Thresh, ratio):
+
+
+def DetectShape(Contour):
+    shape = ""
+    peri = arcLength(Contour, True)
+    approx = approxPolyDP(Contour, 0.02 * peri, True)
+    if len(approx) == 3:
+        shape = "Triangle"
+    elif len(approx) == 4:
+        (x, y, w, h) = cv2.boundingRect(approx)
+        print(x, y, w, h)
+        # ar = w / float(h)
+
+        # rect = x / float(y)
+
+        shape = "Rectangle"
+
+    return shape
+
+
+def ProcessImage(image):
+    resized = imutils.resize(image, width=300)
+    ratio = image.shape[0] / float(resized.shape[0])
+
+    blurred = GaussianBlur(resized, (5, 5), 0)
+    HSV = cvtColor(blurred, cv2.COLOR_BGR2HSV_FULL)
+
+    lower_blue = array([80, 150, 0])
+    upper_blue = array([160, 255, 255])
+    HSVblueThresh = inRange(HSV, lower_blue, upper_blue)
+
+    lower_yellow = array([25, 150, 0])
+    upper_yellow = array([32, 255, 255])
+    HSVyellowThresh = inRange(HSV, lower_yellow, upper_yellow)
+
+    lower_red = array([0, 150, 0])
+    upper_red = array([12, 255, 255])
+    HSVredThresh = cv2.inRange(HSV, lower_red, upper_red)
+
+    HSVredThresh = cv2.bitwise_and(HSVredThresh, HSVredThresh, mask=HSVredThresh)
+    HSVblueThresh = cv2.bitwise_and(HSVblueThresh, HSVblueThresh, mask=HSVblueThresh)
+    HSVyellowThresh = cv2.bitwise_and(HSVyellowThresh, HSVyellowThresh, mask=HSVyellowThresh)
+
+    Thresh = [HSVblueThresh, HSVyellowThresh, HSVredThresh]
+
+    Counter = 0
+
+    for ThreshValue in Thresh:
+        # Thresh[ThreshValue]
+        cnts = findContours(ThreshValue.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+
+        cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+        for c in cnts:
+            M = moments(c)
+            if M["m00"] != 0:
+                cX = int((M["m10"] / M["m00"]) * ratio)
+                cY = int((M["m01"] / M["m00"]) * ratio)
+            else:
+                cX = 0
+                cY = 0
+
+            shape = DetectShape(c)
+
+            if Counter == 0:
+                color = "Blue"
+            elif Counter == 1:
+                color = "Yellow"
+            else:
+                color = "red"
+
+            c = c.astype("float")
+            c *= ratio
+            c = c.astype("int")
+
+            Tail = ""
+            if shape == "Triangle":
+                if color == "Blue":
+                    Tail = "G7C"
+                elif color == "Yellow":
+                    Tail = "L6R"
+                else:
+                    Tail = "UH8"
+            elif shape == "Rectangle":
+                if color == "Blue":
+                    Tail = "A2X"
+                elif color == "Yellow":
+                    Tail = "JW3"
+                else:
+                    Tail = "S1P"
+
+            # text = "{} {}".format(color, shape)
+
+            text = "{}".format(Tail)
+            cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+            cv2.putText(image, text, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            imshow('processed', image)
+        Counter = Counter + 1
+    # return Tail
+
+
+cam = VideoCapture(0)
+
+width = maxsize
+height = maxsize
+
+# Set the dimensions for the main camera
+cam.set(CAP_PROP_FRAME_WIDTH, width)
+cam.set(CAP_PROP_FRAME_HEIGHT, height)
+# Set the dimensions for the secondary camera
+
+startTime = datetime.datetime.now()
+
+index = 0  # This variable allows us to switch between the list indexes:
+# if index is 0: the main camera will be that on the first port
+# if index is 1: the main camera will be that on the second port
+secCount = 0
+min = 0
+
+# list = serial.tools.list_ports.comports()
+
+'''connected = []
+for element in list:
+    connected.append(element.device)'''
+
+'''ser = Serial()
+ser.port = str(element.device)
+ser.baudrate = 9600
+ser.open()
+cnt = 0
+read = ser.inWaiting()
+s = str(ser.read(read))
+s = s[2:]'''
+show = 0
+
+# cam = VideoCapture(0)
+
+while True:
+    var, frame = cam.read()  # Accessing the camera at the corresponding index (Main Camera)
+    # Making the feed taken by the secondary camera appear on top of the main one
+
+    currSec = '0' + str(secCount) if secCount < 10 else str(secCount)
+
+    currTime = '0' + str(min) + ':' + str(secCount) if min < 10 else str(min) + ':' + currSec
+
+    putText(img=frame, text=currTime, org=(370, 90), fontFace=FONT_HERSHEY_DUPLEX, fontScale=3,
+            color=(210, 255, 215), thickness=1, lineType=CV_8S)
+
+    timeElapsed = (datetime.datetime.now() - startTime).total_seconds()
+    if (timeElapsed >= 1):
+        secCount += 1
+        timeElapsed = 0
+        startTime = datetime.datetime.now()
+    if (secCount == 60):
+        secCount = 1
+        min += 1
+
+    # read = ser.inWaiting()
+    # if(show):
+    # disp = ProcessImage(frame)
+    #  putText(img=disp, text = "nX", org=(40, 420), fontFace=FONT_HERSHEY_DUPLEX, fontScale=1, color=(255, 255, 255), thickness=1, lineType=CV_8S)
+    # if secCount < 15:
+    # putText(img=frame, text=s, org=(80, 420), fontFace=FONT_HERSHEY_DUPLEX, fontScale=1, color=(255, 255, 255), thickness=1, lineType=CV_8S)
+    # secCount += 1
+
+    # else:
+    # s = str(ser.read(read))
+    # s = s[2:]
+    # putText(img=frame, text=s, org=(80, 420), fontFace=FONT_HERSHEY_DUPLEX, fontScale=1,
+    #        color=(255, 255, 255), thickness=1, lineType=CV_8S)
+    # cnt = 0
+
+    imshow('Frame', frame)
+
+    key = waitKey(1) & 0xFF
+
+    if (key == ord('P')):
+        show = 1
+        # ProcessImage(frame)
+        putText(img=frame, text=ProcessImage(frame), org=(270, 90), fontFace=FONT_HERSHEY_DUPLEX, fontScale=3,
+                color=(210, 255, 215), thickness=1, lineType=CV_8S)
+
+    if (key == 27 or key == ord('Q') or key == ord('q')):  # Press ESC or Q to quit
+        break
+
+# Release the cameras and destroy the windows
+cam.release()
+destroyAllWindows()

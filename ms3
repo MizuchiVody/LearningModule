@@ -1,0 +1,37 @@
+from tkinter import *
+import numpy as np 
+
+fields = ('number of turbines', 'water density', 'swept area', 'velocity in water', 'turbine efficiency')
+
+def doval(entries):
+   # principal loan:
+   N = float(entries['number of turbines'].get())
+   d = float(entries['water density'].get())
+   A = float(entries['swept area'].get())
+   v = float(entries['velocity in water'].get())
+   e = float(entries['turbine efficiency'].get())
+   P = 0.5*(N*d*A*np.pi*(e**2)*(v**3))
+   print("Maximum Power: %f" % float(P))
+
+def makeform(root, fields):
+   entries = {}
+   for field in fields:
+      row = Frame(root)
+      lab = Label(row, width=22, text=field+": ", anchor='w')
+      ent = Entry(row)
+      row.pack(side=TOP, fill=X, padx=5, pady=5)
+      lab.pack(side=LEFT)
+      ent.pack(side=RIGHT, expand=YES, fill=X)
+      entries[field] = ent
+   return entries
+
+if __name__ == '__main__':
+   root = Tk()
+   ents = makeform(root, fields)
+   #root.bind('<Return>', (lambda event, e=ents: daval(e)))   
+   b1 = Button(root, text='validate',
+          command=(lambda e=ents: doval(e)))
+   b1.pack(side=LEFT, padx=5, pady=5)
+   b3 = Button(root, text='Quit', command=root.quit)
+   b3.pack(side=LEFT, padx=5, pady=5)
+   root.mainloop()

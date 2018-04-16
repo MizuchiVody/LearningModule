@@ -1,8 +1,3 @@
-'''
-this is a first milestone
-in  graphing the OBS data		
-'''
-
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter
@@ -14,7 +9,7 @@ plt.figure(figsize=(7, 5), dpi=64)
 
 #X = np.linspace(1, 16, 256, endpoint=True)
 X = range(1, 17)
-Y = [0, 4.4, -4.3, 0, 0, 6.8, -7, 0, 0, 1.6, -1.6, 0, 0, 6.3, -6.4, 0]	#how to load these numbers from the web browser ?
+Y = [0, 4.4, -4.3, 0, 0, 6.8, -7, 0, 0, 1.6, -1.6, 0, 0, 6.3, -6.4, 0]	
 #Z = np.linspace(min(Y), max(Y), 256, endpoint = True)
 
 #plt.tick_params({'x', 'y',})

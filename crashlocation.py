@@ -3,8 +3,7 @@ import numpy as np
 
 fields = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind','a', 'b', 'c')
 
-#def g1 (): 
-	#global AscentMovement
+
 def AscentMovement (entries):
 	h = float(entries['heading'].get())
 	aas = float(entries['ascent airspeed'].get())
@@ -16,28 +15,7 @@ def AscentMovement (entries):
 	print ("ascent movement: ")
 	print (xcomp)
 	print (ycomp)
-'''	if (xcomp > 0):
-		print (xcomp) 
-		print ("(east)")
-
-	elif (xcomp < 0):
-		print (xcomp) 
-		print ("(west)")
-
-	else: print ("0")
-
-	if (ycomp > 0):
-		print (ycomp) 
-		print ("(north)")
-
-	elif (ycomp < 0):
-		print (xcomp) 
-		print ("(south)")	
-		
-	else: print ("0")'''
-
-#def g2 ():
-	#global DescentMovement 
+ 
 def DescentMovement(entries):
 	aar = float(entries['ascent rate'].get()) 
 	h = float(entries['heading'].get())
@@ -52,23 +30,7 @@ def DescentMovement(entries):
 	print ("descent movement: ")
 	print (Xcomp)
 	print (Ycomp)
-'''	if (Xcomp > 0):
-		print (Xcomp) 
-		print ("(east)")
-	elif (Xcomp < 0):
-		print (Xcomp) 
-		print ("(west)")
-	else: print ("0")
-	if (Ycomp > 0):
-		print (Ycomp) 
-		print ("(north)")
-	elif (Ycomp < 0):
-		print (Xcomp) 
-		print ("(south)")
-	else: print ("0")'''
 
-#def g3 ():
-	#global WindMovement
 def WindMovement(entries):
 	aar = float(entries['ascent rate'].get()) 
 	global h
@@ -88,31 +50,8 @@ def WindMovement(entries):
 	print ("wind movement: ")
 	print (xpos)
 	print (ypos)
-	'''if (xpos > 0):
-		print (xpos) 
-		print ("(east)")
-	elif (xpos < 0):
-		print (xpos) 
-		print ("(west)")
-	else: print ("0")
-	if (ypos > 0):
-		print (ypos) 
-		print ("(north)")
-	elif (ypos < 0):
-		print (ypos) 
-		print ("(south)")
-	else: print ("0")'''
 
-#def g4 ():
-	#global totMovement
 def totMovement(entries):
-	'''
-	AscentMovement (entries)
-	DescentMovement (entries)
-	WindMovement (entries)
-	xtot = 0
-	ytot = 0
-	'''
 	global xtot
 	xtot = xcomp + Xcomp + xpos
 	global ytot
@@ -120,8 +59,7 @@ def totMovement(entries):
 	print ("total movement:") 
 	print (xtot) 
 	print (ytot)
-
-#def degree (entries):							arctan (sum (sines) / sum (cosines))
+								#arctan (sum (sines) / sum (cosines))
 def result(entries):
 	dist = np.sqrt(xtot**2 + ytot**2)
 	kaka = xtot / ytot

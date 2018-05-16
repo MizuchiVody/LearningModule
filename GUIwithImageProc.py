@@ -15,16 +15,16 @@ def ProcessImage(img):
     thresh = threshold(blurred, 60, 255, THRESH_BINARY)[1]
 
     HSV = cvtColor(blurred, COLOR_BGR2HSV_FULL)
-    lower_blue = array([80, 150, 0])
-    upper_blue = array([160, 255, 255])
+    lower_blue = array([85, 100, 150])
+    upper_blue = array([180, 255, 255])
     hsvbluethresh = inRange(HSV, lower_blue, upper_blue)
 
-    lower_yellow = array([25, 150, 0])
-    upper_yellow = array([32, 255, 255])
+    lower_yellow = array([25, 100, 100])
+    upper_yellow = array([48, 255, 255])
     hsvyellowthresh = inRange(HSV, lower_yellow, upper_yellow)
 
-    lower_red = array([0, 150, 0])
-    upper_red = array([12, 255, 255])
+    lower_red = array([0, 100, 100])
+    upper_red = array([20, 255, 255])
     hsvredthresh = inRange(HSV, lower_red, upper_red)
 
     hsvredthresh = cv2.bitwise_and(hsvredthresh, hsvredthresh, mask=hsvredthresh)
@@ -65,7 +65,7 @@ def ProcessImage(img):
 
             if(shape != "Unknown"):
                 drawContours(img, [cnt], 0, (0, 255, 0), 2)
-                ans = color[i] + shape
+                ans = color[i] + ' ' + shape
                 putText(img=img,text=ans,org=(X, Y),fontFace=FONT_HERSHEY_DUPLEX,fontScale=1,
                             color=(255, 255, 255), thickness=2)
 
@@ -106,6 +106,8 @@ secCount = 0
 min = 0
 cnt = 0
 show = 0
+
+
 
 while(True):
     var, frame = cams[index].read()

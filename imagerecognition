@@ -1,0 +1,148 @@
+# Import the necessary packages
+from tkinter import *  # Make sure you're using Python 3!!!
+# import serial.tools.list_ports
+import datetime
+from cv2 import *
+from sys import *
+from time import *
+# from serial import *
+from numpy import *
+import numpy as np
+import imutils
+from scipy.spatial import distance as dist
+from collections import OrderedDict
+
+
+def DetectShape(Contour):
+    shape = ""
+    peri = arcLength(Contour, True)
+    approx = approxPolyDP(Contour, 0.03 * peri, True)
+    if len(approx) == 3:
+        shape = "Triangle"
+    elif len(approx) == 4:
+        """"(x, y, w, h) = cv2.boundingRect(approx)
+        print(x, y, w, h)
+        # ar = w / float(h)
+
+        # rect = x / float(y)"""
+
+        shape = "Rectangle"
+
+    return shape
+
+
+def ProcessImage(image):
+    resized = imutils.resize(image, width=300)
+    ratio = image.shape[0] / float(resized.shape[0])
+
+    blurred = GaussianBlur(resized, (5, 5), 0)
+    HSV = cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+    lower_blue = array([105, 100, 100])
+    upper_blue = array([13, 255, 255])
+    HSVblueThresh = inRange(HSV, lower_blue, upper_blue)
+
+    lower_yellow = array([75, 100, 100])
+    upper_yellow = array([105, 255, 255])
+    HSVyellowThresh = inRange(HSV, lower_yellow, upper_yellow)
+    #imshow('yellow', HSVyellowThresh)
+
+    lower_red = array([0, 100, 100])
+    upper_red = array([10, 255, 255])
+    HSVredThresh = cv2.inRange(HSV, lower_red, upper_red)
+    #imshow('red', HSVredThresh)
+
+
+    """HSVredThresh = cv2.bitwise_and(HSVredThresh, HSVredThresh, mask=HSVredThresh)
+    HSVblueThresh = cv2.bitwise_and(HSVblueThresh, HSVblueThresh, mask=HSVblueThresh)
+    HSVyellowThresh = cv2.bitwise_and(HSVyellowThresh, HSVyellowThresh, mask=HSVyellowThresh)"""
+
+    Thresh = [HSVblueThresh, HSVyellowThresh, HSVredThresh]
+
+
+
+    cnts = findContours(HSVblueThresh.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+
+    cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+    for c in cnts:
+        M = moments(c)
+        if M["m00"] != 0:
+            cX = int((M["m10"] / M["m00"]) * ratio)
+            cY = int((M["m01"] / M["m00"]) * ratio)
+        else:
+            cX = 0
+            cY = 0
+
+        shape = DetectShape(c)
+
+        color = "Blue"
+
+        c = c.astype("float")
+        c *= ratio
+        c = c.astype("int")
+
+        Tail = ""
+        if shape == "Triangle":
+            if color == "Blue":
+                Tail = "Blue Triangle G7C"
+            elif color == "Yellow":
+                Tail = "Yellow Triangle L6R"
+            elif color == "Red":
+                Tail = "Red Triangle UH8"
+        elif shape == "Rectangle":
+            if color == "Blue":
+                Tail = "Blue Rectangle A2X"
+            elif color == "Yellow":
+                Tail = "Yellow Rectangle JW3"
+            elif color == "Red":
+                Tail = "Red Rectangle S1P"
+
+        text = "{}".format(Tail)
+        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+        cv2.putText(image, text, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        imshow('processed', image)
+
+
+
+cam = VideoCapture(0)
+
+width = maxsize
+height = maxsize
+
+# Set the dimensions for the main camera
+cam.set(CAP_PROP_FRAME_WIDTH, width)
+cam.set(CAP_PROP_FRAME_HEIGHT, height)
+# Set the dimensions for the secondary camera
+
+startTime = datetime.datetime.now()
+
+index = 0  # This variable allows us to switch between the list indexes:
+# if index is 0: the main camera will be that on the first port
+# if index is 1: the main camera will be that on the second port
+secCount = 0
+min = 0
+
+show = 0
+
+oneFrame = cv2.imread("red triangle.jpg")
+
+while True:
+    var, frame = cam.read()  # Accessing the camera at the corresponding index (Main Camera)
+    # Making the feed taken by the secondary camera appear on top of the main one
+
+    imshow('Frame', frame)
+
+    key = waitKey(1) & 0xFF
+
+    if (key == ord('P')):
+        show = 1
+        ProcessImage(frame)
+
+
+    if (key == 27 or key == ord('Q') or key == ord('q')):  # Press ESC or Q to quit
+        break
+
+# Release the cameras and destroy the windows
+cam.release()
+destroyAllWindows()

@@ -304,7 +304,6 @@ while(True):
     if (k == 27 or k == ord('Q') or k == ord('q')):  # Press ESC or Q to quit
         break
 
-
 cam1.release()
 cam2.release()
 destroyAllWindows()

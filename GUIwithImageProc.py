@@ -94,12 +94,11 @@ def ProcessImage(img):
 
 
 
-fields = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind', 'a', 'b', 'c')
+fields = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind heading','W(x)')
 
 def Mission1():
-    fields_1 = (
-    'heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind', 'a',
-    'b', 'c')
+    fields_1 = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind heading','W(x)')
+
     fields_3 = ('number of turbines', 'water density', 'turbine radius', 'velocity in water', 'turbine efficiency')
 
     # functions for mission 1
@@ -130,26 +129,24 @@ def Mission1():
         print(Xcomp)
         print(Ycomp)
 
-    def windmovement(entries):
-        aar = float(entries['ascent rate'].get())
+    def WindMovement(entries):
+        aar = float(entries['ascent rate'].get()) 
         global h
         h = float(entries['heading'].get())
         das = float(entries['decsent airspeed'].get())
         t = float(entries['engine failure time'].get())
         t2 = (t * aar) / 6
         adr = float(entries['decsent rate'].get())
-        A = float(entries['a'].get())
-        B = float(entries['b'].get())
-        C = float(entries['c'].get())
-        w = float(entries['wind'].get())
+        Wt = str(entries['W(t)'].get())
+        w = float(entries['wind heading'].get())
+        x = sp.symbols ('x')
         global ypos
-        ypos = (1 / 3 * A * t2 ** 3 + 1 / 2 * B * t2 ** 2 + C * t2) * (cos(deg2rad(w - 180)))
+        ypos =sp.integrate (Wt, (x, 0, t2)) * (np.cos(np.deg2rad(w - 180)))
         global xpos
-        xpos = (1 / 3 * A * t2 ** 3 + 1 / 2 * B * t2 ** 2 + C * t2) * sin(deg2rad(w - 180))
-        print("wind movement: ")
-        print(xpos)
-        print(ypos)
-
+        xpos = sp.integrate (Wt, (x, 0, t2)) * np.sin(np.deg2rad(w - 180))
+        print ("wind movement: ")
+        print (xpos)
+        print (ypos)
     def totmovement(entries):
 
         global xtot
@@ -224,31 +221,30 @@ def Mission1():
             entries[field] = ent
         return entries
 
-    def prompt1():
+    def prompt1 ():
+        #when typing the wind equation make sure to use x as the variable and not t
         ents = makeform_for_1(root, fields_1)
-        b1 = Button(root, text='validate',
-                    command=lambda: [ascentmovement(ents), descentmovement(ents), windmovement(ents),
-                                     totmovement(ents), result(ents)]).pack(side=LEFT, padx=5, pady=5)
+        b1 = Button(root, text = 'validate', command = lambda: [AscentMovement(ents), DescentMovement(ents), WindMovement(ents), 
+            totMovement(ents), result(ents)]).pack(side=LEFT, padx=5, pady=5)
         b3 = Button(root, text='Quit', command=root.quit).pack(side=LEFT, padx=5, pady=5)
         root.mainloop()
-
-    def prompt3():
+    def prompt3 ():
         ents = makeform_for_3(root, fields_3)
-        b1 = Button(root, text='validate', command=lambda: [doval(ents)]).pack(side=LEFT, padx=3, pady=3)
+        b1 = Button(root, text = 'validate', command = lambda: [doval(ents)]).pack(side=LEFT, padx=3, pady=3)
         b3 = Button(root, text='Quit', command=root.quit).pack(side=LEFT, padx=3, pady=3)
         root.mainloop()
 
-    root = Tk()
-    zebi = Label(root, text="which mission do you wish to complete?", padx=2, pady=2, anchor='n', height=3, width=70)
-    zebi.pack()
-    btn1 = Button(root, text="Mission 1", command=prompt1)
-    btn1.config(height=3, width=20)
-    btn1.pack()
-    btn3 = Button(root, text="Mission 3", command=prompt3)
-    btn3.config(height=3, width=20)
-    btn3.pack()
-    b1 = Button(root, text='validate', command=lambda: [ascentmovement(ents), descentmovement(ents), windmovement(ents), totmovement(ents),result(ents)])
-    root.mainloop()
+
+root = Tk()
+zebi = Label(root, text = "Mission calculator", padx = 2, pady = 2, anchor = 'n', height = 3, width = 40)
+zebi.pack()
+btn1 = Button(root, text = "Mission 1", command = prompt1)
+btn1.config(height = 3, width = 20)
+btn1.pack()
+btn3 = Button(root, text = "Mission 3", command = prompt3)
+btn3.config(height = 3, width = 20)
+btn3.pack()
+root.mainloop()
 
 root = Tk()
 label = Label(root)

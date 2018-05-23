@@ -7,12 +7,20 @@ from numpy import *
 from imutils import *
 from serial import *
 from collections import *
+import pytesseract
 import os
 
-def ProcessImage(img):
-    resized = resize(img, width=300)
-    ratio = img.shape[0] / float(resized.shape[1])
+def DetectText(img):
+    pytesseract.pytesseract.tesseract_cmd = "C:/Program Files (x86)/Tesseract-OCR/tesseract"
+    text1 = pytesseract.image_to_string(img, lang='eng')
+    if(text1 != ''):
+        text2 = "the extraxted text from the image is:\n" + text1
+        print(text2)
 
+def ProcessImage(img):
+    image = img
+    resized = resize(image, width=300)
+    ratio = img.shape[0] / float(resized.shape[0])
     blurred = GaussianBlur(resized, (5, 5), 0)
     thresh = threshold(blurred, 60, 255, THRESH_BINARY)[1]
 
@@ -22,10 +30,10 @@ def ProcessImage(img):
     hsvbluethresh = inRange(HSV, lower_blue, upper_blue)
 
     lower_yellow = array([13, 90, 90])
-    upper_yellow = array([30, 255, 255])
+    upper_yellow = array([50, 255, 255])
     hsvyellowthresh = inRange(HSV, lower_yellow, upper_yellow)
 
-    lower_red = array([0, 100, 100])
+    lower_red = array([0, 80, 75])
     upper_red = array([10, 255, 255])
     hsvredthresh = inRange(HSV, lower_red, upper_red)
 
@@ -38,47 +46,53 @@ def ProcessImage(img):
     color = {0: "Blue", 1: "Red", 2: "Yellow"}
     tailTri = {0: "G7C", 1: "UH8", 2: "L6R"}
     tailRect = {0: "A2X", 1: "S1P", 3: "JW3"}
-
+    maxArea = 0
+    shape = "Unknown"
     for i in range(0, 3):
 
         countours = findContours(ThreshColors[i].copy(), RETR_EXTERNAL, CHAIN_APPROX_SIMPLE)
         countours = countours[0] if is_cv2() else countours[1]
-
         for cnt in countours:
-
             M = moments(cnt)
-            X = int((M["m10"] / M["m00"]) * ratio) if(M["m00"] != 0) else 0
-            Y = int((M["m01"] / M["m00"]) * ratio) if(M["m00"] != 0) else 0
+            X = int((M["m10"] / M["m00"]) * ratio) if (M["m00"] != 0) else 0
+            Y = int((M["m01"] / M["m00"]) * ratio) if (M["m00"] != 0) else 0
 
             approx = approxPolyDP(cnt, 0.02 * arcLength(cnt, True), True)
+            area = contourArea(cnt)
+            if(area > maxArea):
+                l = len(approx)
+                global cntA
+                cntA = cnt
+                if l == 3:
+                    shape = "Triangle"
 
-            shape = "Unknown"
-            l = len(approx)
+                elif l == 4:
+                    shape = "Rectangle"
 
-            if l == 3:
-                shape = "Triangle"
+                tail = "Unknown"
+                if shape == "Triangle":
+                    tail = tailTri[i]
+                elif shape == "Rectangle":
+                    if i == 0:
+                        tail = "A2X"
+                    elif i == 1:
+                        tail = "S1P"
+                    else:
+                        tail = "JW3"
 
-            elif l == 4:
-                shape = "Rectangle"
+        if (shape != "Unknown" and tail != "Unknown"):
+            M = moments(cntA)
+            X = int((M["m10"] / M["m00"]) * ratio) if (M["m00"] != 0) else 0
+            Y = int((M["m01"] / M["m00"]) * ratio) if (M["m00"] != 0) else 0
+            cntA = cntA.astype("float")
+            cntA *= ratio
+            cntA = cntA.astype("int")
+            drawContours(img, [cntA], 0, (0, 255, 0), 2)
+            ans = color[i] + ' ' + shape + ' ' + tail
+            putText(img=image, text=ans, org=(X, Y), fontFace=FONT_HERSHEY_DUPLEX, fontScale=1, color=(255, 255, 255),
+                        thickness=2)
 
-            tail = "Unknown"
-            if shape == "Triangle":
-                tail = tailTri[i]
-            elif shape == "Rectangle":
-                if i == 0:
-                    tail = "A2X"
-                elif i == 1:
-                    tail = "S1P"
-                else:
-                    tail = "JW3"
 
-            if(shape != "Unknown" and tail != "Unknown"):
-                cnt = cnt.astype("float")
-                cnt *= ratio
-                cnt = cnt.astype("int")
-                drawContours(img, [cnt], 0, (0, 255, 0), 2)
-                ans = color[i] + ' ' + shape + ' ' + tail
-                putText(img=img,text=ans,org=(X, Y),fontFace=FONT_HERSHEY_DUPLEX,fontScale=1, color=(255, 255, 255), thickness=2)
 
 fields = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind', 'a', 'b', 'c')
 
@@ -239,7 +253,7 @@ def Mission1():
 root = Tk()
 label = Label(root)
 
-cam1 = VideoCapture(0)
+cam1 = VideoCapture(2)
 cam2 = VideoCapture(1)
 
 width, height = maxsize, maxsize
@@ -270,8 +284,8 @@ while(True):
 
     currTime = '0' + str(min) + ':' + str(secCount) if min < 10 else str(min) + ':' + currSec
 
-    putText(img=frame, text=currTime, org=(1000, 90), fontFace=FONT_HERSHEY_DUPLEX, fontScale=4,
-            color=(210, 255, 215), thickness=1, lineType=CV_8S)
+    putText(img=frame, text=currTime, org=(1000, 90), fontFace=FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale=4,
+            color=(210, 255, 215), thickness=4, lineType=CV_8S)
 
     timeElapsed = (datetime.datetime.now() - startTime).total_seconds()
     if (timeElapsed >= 1):
@@ -286,10 +300,10 @@ while(True):
 
     if(k == ord('m')):
         Mission1()
+    if (k == ord('t')):
+        DetectText(frame)
 
-    if(waitKey(10) & 0xFF == ord('P')):
-        ProcessImage(frame)
-
+    ProcessImage(frame)
     imshow('Frame', frame)
 
     if (k == 13 or k == ord('s')):
@@ -304,7 +318,9 @@ while(True):
     if (k == 27 or k == ord('Q') or k == ord('q')):  # Press ESC or Q to quit
         break
 
+
 cam1.release()
 cam2.release()
 destroyAllWindows()
+
 

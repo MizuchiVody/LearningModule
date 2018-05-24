@@ -8,7 +8,9 @@ from imutils import *
 from serial import *
 from collections import *
 import pytesseract
-import os
+import sympy as sp
+import numpy as np
+import math
 
 def DetectText(img):
     pytesseract.pytesseract.tesseract_cmd = "C:/Program Files (x86)/Tesseract-OCR/tesseract"
@@ -92,13 +94,8 @@ def ProcessImage(img):
             putText(img=image, text=ans, org=(X, Y), fontFace=FONT_HERSHEY_DUPLEX, fontScale=1, color=(255, 255, 255),
                         thickness=2)
 
-
-
-fields = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind heading','W(x)')
-
-def Mission1():
-    fields_1 = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind heading','W(x)')
-
+def Missions():
+    fields_1 = ('heading', 'ascent airspeed', 'ascent rate', 'engine failure time', 'decsent airspeed', 'decsent rate', 'wind heading', 'W(x)')
     fields_3 = ('number of turbines', 'water density', 'turbine radius', 'velocity in water', 'turbine efficiency')
 
     # functions for mission 1
@@ -129,24 +126,25 @@ def Mission1():
         print(Xcomp)
         print(Ycomp)
 
-    def WindMovement(entries):
-        aar = float(entries['ascent rate'].get()) 
+    def windmovement(entries):
+        aar = float(entries['ascent rate'].get())
         global h
         h = float(entries['heading'].get())
         das = float(entries['decsent airspeed'].get())
         t = float(entries['engine failure time'].get())
         t2 = (t * aar) / 6
         adr = float(entries['decsent rate'].get())
-        Wt = str(entries['W(t)'].get())
+        Wt = str(entries['W(x)'].get())
         w = float(entries['wind heading'].get())
-        x = sp.symbols ('x')
+        x = sp.symbols('x')
         global ypos
-        ypos =sp.integrate (Wt, (x, 0, t2)) * (np.cos(np.deg2rad(w - 180)))
+        ypos = sp.integrate(Wt, (x, 0, t2)) * (cos(deg2rad(w - 180)))
         global xpos
-        xpos = sp.integrate (Wt, (x, 0, t2)) * np.sin(np.deg2rad(w - 180))
-        print ("wind movement: ")
-        print (xpos)
-        print (ypos)
+        xpos = sp.integrate(Wt, (x, 0, t2)) * sin(deg2rad(w - 180))
+        print("wind movement: ")
+        print(xpos)
+        print(ypos)
+
     def totmovement(entries):
 
         global xtot
@@ -159,9 +157,9 @@ def Mission1():
 
     # def degree (entries):							arctan (sum (sines) / sum (cosines))
     def result(entries):
-        dist = sqrt(xtot ** 2 + ytot ** 2)
-        kaka = xtot / ytot
-        direction = rad2deg(arctan(abs(kaka)))
+        dist = math.sqrt(xtot ** 2 + ytot ** 2)
+        k = xtot / ytot
+        direction = rad2deg(math.atan(abs(k)))
         print('reported search zone :')
         print(dist)
         # print (direction)
@@ -221,35 +219,37 @@ def Mission1():
             entries[field] = ent
         return entries
 
-    def prompt1 ():
-        #when typing the wind equation make sure to use x as the variable and not t
+    def prompt1():
+        global ents
         ents = makeform_for_1(root, fields_1)
-        b1 = Button(root, text = 'validate', command = lambda: [AscentMovement(ents), DescentMovement(ents), WindMovement(ents), 
-            totMovement(ents), result(ents)]).pack(side=LEFT, padx=5, pady=5)
+        b1 = Button(root, text='validate',
+                    command=lambda: [ascentmovement(ents), descentmovement(ents), windmovement(ents),
+                                     totmovement(ents), result(ents)]).pack(side=LEFT, padx=5, pady=5)
         b3 = Button(root, text='Quit', command=root.quit).pack(side=LEFT, padx=5, pady=5)
         root.mainloop()
-    def prompt3 ():
+
+    def prompt3():
+        global ents
         ents = makeform_for_3(root, fields_3)
-        b1 = Button(root, text = 'validate', command = lambda: [doval(ents)]).pack(side=LEFT, padx=3, pady=3)
+        b1 = Button(root, text='validate', command=lambda: [doval(ents)]).pack(side=LEFT, padx=3, pady=3)
         b3 = Button(root, text='Quit', command=root.quit).pack(side=LEFT, padx=3, pady=3)
         root.mainloop()
 
-
-root = Tk()
-zebi = Label(root, text = "Mission calculator", padx = 2, pady = 2, anchor = 'n', height = 3, width = 40)
-zebi.pack()
-btn1 = Button(root, text = "Mission 1", command = prompt1)
-btn1.config(height = 3, width = 20)
-btn1.pack()
-btn3 = Button(root, text = "Mission 3", command = prompt3)
-btn3.config(height = 3, width = 20)
-btn3.pack()
-root.mainloop()
+    z = Label(root, text="which mission do you wish to complete?", padx=2, pady=2, anchor='n', height=3, width=70)
+    z.pack()
+    btn1 = Button(root, text="Mission 1", command=prompt1)
+    btn1.config(height=3, width=20)
+    btn1.pack()
+    btn3 = Button(root, text="Mission 3", command=prompt3)
+    btn3.config(height=3, width=20)
+    btn3.pack()
+    b1 = Button(root, text='validate', command=lambda: [ascentmovement(ents), descentmovement(ents), windmovement(ents), totmovement(ents),result(ents)])
+    root.mainloop()
 
 root = Tk()
 label = Label(root)
 
-cam1 = VideoCapture(2)
+cam1 = VideoCapture(0)
 cam2 = VideoCapture(1)
 
 width, height = maxsize, maxsize
@@ -295,7 +295,7 @@ while(True):
     k = waitKey(1) & 0xFF
 
     if(k == ord('m')):
-        Mission1()
+        Missions()
     if (k == ord('t')):
         DetectText(frame)
 
